@@ -1,6 +1,8 @@
 model_name=$1
 model_pretty_name=$2
-n_shards=$3 
+n_shards=$3
+# all args after 4 are extra_args 
+extra_args="${@:4}"
 
 TEMP=0; TOP_P=1.0; MAX_TOKENS=4096; 
 batch_size=1;
@@ -28,7 +30,8 @@ if [ $n_shards -eq 1 ]; then
         --model_pretty_name $model_pretty_name \
         --top_p $TOP_P --temperature $TEMP \
         --batch_size $batch_size --max_tokens $MAX_TOKENS \
-        --output_folder $output_dir/  
+        --output_folder $output_dir/ \
+        $extra_args
 
 elif [ $n_shards -gt 1 ]; then
     TOTAL_EXAMPLE=1024
@@ -53,6 +56,7 @@ elif [ $n_shards -gt 1 ]; then
             --top_p $TOP_P --temperature $TEMP \
             --batch_size $batch_size --max_tokens $MAX_TOKENS \
             --output_folder $shards_dir/ \
+            $extra_args \
               &
     done 
     wait 

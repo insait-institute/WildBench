@@ -7,6 +7,7 @@ import os
 import json  
 from transformers import BitsAndBytesConfig
 from transformers import StoppingCriteria, StoppingCriteriaList, LogitsProcessor, LogitsProcessorList
+from peft import PeftModel, PeftConfig
 
 import openai
 from tenacity import (
@@ -74,9 +75,10 @@ class BiasWordsLogitsProcessor(LogitsProcessor):
  
 
 class ModelManager:
-    def __init__(self, model_path, model_name):
+    def __init__(self, model_path, model_name, peft_adapter=None):
         self.model_path = model_path
         self.model_name = model_name
+        self.peft_adapter = peft_adapter
     
     def load_model(self):
         # Load model from disk
@@ -96,8 +98,8 @@ class ModelManager:
 
 class DecoderOnlyModelManager(ModelManager):
     
-    def __init__(self, model_path, model_name, cache_dir=None, bf16=False, int8=False, bnb4=False, gptq=False):
-        super().__init__(model_path, model_name)
+    def __init__(self, model_path, model_name, cache_dir=None, bf16=False, int8=False, bnb4=False, gptq=False, peft_adapter=None):
+        super().__init__(model_path, model_name, peft_adapter)
         self.cache_dir = cache_dir
         self.bf16 = bf16
         self.bnb4 = bnb4
@@ -164,6 +166,12 @@ class DecoderOnlyModelManager(ModelManager):
             self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
         self.tokenizer.padding_side = self.padding_side
         print(f"(updated) self.tokenizer.pad_token_id={self.tokenizer.pad_token_id}")
+        
+        if self.peft_adapter:
+            print("Loading PEFT adapter:", self.peft_adapter)
+            peft_config = PeftConfig.from_pretrained(self.peft_adapter)
+            self.model = PeftModel(self.model, peft_config)
+            print("PEFT adapter loaded.")
         self.model.eval()
  
         print("model device:", self.model.device) 

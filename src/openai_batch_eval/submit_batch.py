@@ -5,7 +5,7 @@ client = OpenAI()
 
 filepath = sys.argv[1]  
 description = filepath.replace(".batch-submit.jsonl", "")
-
+print(f"Submitting batch with description: {description}")
 # existing_batches = client.batches.list(limit=300)
 # # check if the batch already exists based on the description
 # for batch in existing_batches:

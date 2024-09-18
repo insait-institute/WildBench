@@ -19,6 +19,7 @@ def parse_args():
     parser.add_argument('--download_dir', default=None, type=str)
     parser.add_argument('--model_name', default=None, type=str)
     parser.add_argument('--model_pretty_name', default=None, type=str)
+    parser.add_argument('--peft_adapter', default=None, type=str)
     parser.add_argument('--tokenizer_name', default="auto", type=str)
     parser.add_argument('--tensor_parallel_size', type=int, default=1)
     parser.add_argument('--dtype', type=str, default="auto")
@@ -33,6 +34,7 @@ def parse_args():
     parser.add_argument('--max_model_len',default=None, type=int)
     parser.add_argument('--start_index',default=0, type=int) # 0 means from the beginning of the list
     parser.add_argument('--end_index',default=-1, type=int) # -1 means to the end of the list
+    parser.add_argument('--take_every',default=1, type=int) # 1 means to take all samples
     parser.add_argument('--filepath',default="auto", type=str)
     parser.add_argument('--overwrite', action='store_true')
     parser.add_argument('--no_repeat_ngram_size', default=0, type=int)
@@ -70,7 +72,7 @@ if __name__ == "__main__":
                         )
     elif args.engine == "hf":
         llm = DecoderOnlyModelManager(args.model_name, args.model_name, cache_dir=args.download_dir,
-                                    bf16=args.hf_bf16, gptq=args.hf_gptq)
+                                    bf16=args.hf_bf16, gptq=args.hf_gptq, peft_adapter=args.peft_adapter)
         llm.load_model()
     elif args.engine in ["openai", "google", "cohere", "anthropic", "together", "reka", "yi"]:
         pass 
@@ -103,10 +105,10 @@ if __name__ == "__main__":
 
     if args.end_index < 0 or args.end_index > len(model_inputs):
         args.end_index = len(model_inputs)
-    model_inputs = model_inputs[args.start_index:args.end_index]
-    id_strs = id_strs[args.start_index:args.end_index]
-    chat_history = chat_history[args.start_index:args.end_index]
-    metadata = {key: metadata[key][args.start_index:args.end_index] for key in metadata}
+    model_inputs = model_inputs[args.start_index:args.end_index:args.take_every]
+    id_strs = id_strs[args.start_index:args.end_index:args.take_every]
+    chat_history = chat_history[args.start_index:args.end_index:args.take_every]
+    metadata = {key: metadata[key][args.start_index:args.end_index:args.take_every] for key in metadata}
 
     print("loading dataset ... done!")
 

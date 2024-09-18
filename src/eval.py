@@ -411,6 +411,19 @@ def compose_eval_item(b, t, r, histories, last_queries, checklists):
     last_queries.append(last_query)
     checklists.append(checklist)
 
+def select_data(data, target_data):
+    new_data = []
+    for t in target_data:
+        sid = t["session_id"]
+        found = False
+        for d in data:
+            if d["session_id"] == sid:
+                new_data.append(d)
+                found = True
+                break
+        assert found, f"Failed to find the data for session_id={sid}"
+    return new_data
+
 def main():
     args = get_args() 
     random.seed(args.seed)
@@ -449,12 +462,15 @@ def main():
                     print(f"Loaded the local results from {args.local_result_file}")
         if args.mode == "pairwise":
             ref_model_data = load_dataset(HF_RESULTS_PATH, args.ref_model_name, split="train")
+            ref_model_data = select_data(ref_model_data, target_model_data)
         else:
             print("No reference model is needed for checklist evaluation.")
             ref_model_data = [None] * len(target_model_data)
         histories = []
         last_queries = []
         checklists = []
+        bench_data = select_data(bench_data, target_model_data)
+        print("target model data", len(target_model_data))
         for b, t, r in zip(bench_data, target_model_data, ref_model_data):
             compose_eval_item(b, t, r, histories, last_queries, checklists)
         print(f"len(target_model_data)={len(target_model_data)}")

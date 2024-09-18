@@ -19,7 +19,7 @@ fi
 eval_folder="eval_results/v2.0625/score.v2/eval=${gpt_eval_name}/"
 echo "Evaluating $model_name using $gpt_eval_name with $eval_template"
 mkdir -p $eval_folder 
-eval_file="${eval_folder}/${model_name}.batch-submit.jsonl"
+eval_file="${eval_folder}${model_name}.batch-submit.jsonl"
 
 # judge if the eval_file exists 
 if [ -f $eval_file ]; then
