@@ -170,8 +170,10 @@ class DecoderOnlyModelManager(ModelManager):
         if self.peft_adapter:
             print("Loading PEFT adapter:", self.peft_adapter)
             peft_config = PeftConfig.from_pretrained(self.peft_adapter)
-            self.model = PeftModel(self.model, peft_config)
+            # self.model = PeftModel(self.model, peft_config)
+            self.model = PeftModel.from_pretrained(self.model, self.peft_adapter)
             print("PEFT adapter loaded.")
+            print(self.model)
         self.model.eval()
  
         print("model device:", self.model.device) 
