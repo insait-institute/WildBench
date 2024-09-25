@@ -73,7 +73,7 @@ def load_eval_data(args, data_name=None, model_name=None):
         dataset = load_dataset("WildEval/WildBench-V2", "v2.0522", split="test")
         metadata = {"session_id": [], "primary_tag": []}
     elif data_name == "alpaca_eval":
-        dataset = load_dataset("tatsu-lab/alpaca_eval", "alpaca_eval", split="eval")
+        dataset = load_dataset("tatsu-lab/alpaca_eval", "alpaca_eval", split="eval", trust_remote_code=True)
         metadata = {"dataset": []}
     elif data_name == "just_eval":
         dataset = load_dataset("re-align/just-eval-instruct", split="test")

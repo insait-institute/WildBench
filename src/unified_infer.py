@@ -55,6 +55,8 @@ def parse_args():
 def sanitize_args(args):
     if args.download_dir == "default":
         args.download_dir = None
+    if args.data_name != "wild_bench":
+        args.output_folder = args.output_folder.replace("wild_bench", args.data_name)
     return args
 
 if __name__ == "__main__":
@@ -102,6 +104,8 @@ if __name__ == "__main__":
         output_folder = "/".join(filepath.split("/")[:-1])
         if not os.path.exists(output_folder):
             os.system(f"mkdir -p {output_folder}")
+
+    print("Saving the results in", filepath)
 
     if args.end_index < 0 or args.end_index > len(model_inputs):
         args.end_index = len(model_inputs)
@@ -158,6 +162,8 @@ if __name__ == "__main__":
     elif args.engine == "hf":
         for cur_id in tqdm(range(0, len(todo_inputs), args.batch_size), desc=f"Generating {args.model_name} from {args.start_index} to {args.end_index}"):
             batch_inputs = todo_inputs[cur_id:cur_id+args.batch_size]
+            # TODO: delete this
+            args.temperature = 0.7
             sampling_params = {
                 "do_sample": True if args.temperature > 0 else False,
                 "top_p": args.top_p,

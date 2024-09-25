@@ -1,10 +1,13 @@
-model_name=$1
-model_pretty_name=$2
-n_shards=$3
-# all args after 4 are extra_args 
-extra_args="${@:4}"
+data_name=$1
+model_name=$2
+model_pretty_name=$3
+n_shards=$4
+TEMP=0; TOP_P=1.0; 
+TEMP=${5:"0"}
+TOP_P=${6:"1"}
+extra_args="${@:7}"
 
-TEMP=0; TOP_P=1.0; MAX_TOKENS=4096; 
+MAX_TOKENS=4096; 
 batch_size=1;
 # gpu="0,1,2,3"; num_gpus=4; 
 
@@ -21,7 +24,7 @@ if [ $n_shards -eq 1 ]; then
     CUDA_VISIBLE_DEVICES=$gpu \
     python src/unified_infer.py \
         --engine hf \
-        --data_name wild_bench \
+        --data_name $data_name \
         --model_name $model_name \
         --use_hf_conv_template --use_imend_stop \
         --download_dir $CACHE_DIR \
@@ -46,7 +49,7 @@ elif [ $n_shards -gt 1 ]; then
         python src/unified_infer.py \
             --engine hf \
             --start_index $start --end_index $end \
-            --data_name wild_bench \
+            --data_name $data_name \
             --model_name $model_name \
             --use_hf_conv_template --use_imend_stop \
             --download_dir $CACHE_DIR \
